@@ -11,10 +11,15 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const app = express();
 const server = http.createServer(app);
 
+// Parse allowed origins (supports comma-separated values for multiple frontends)
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map(s => s.trim());
+
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PATCH']
   }
 });
@@ -24,7 +29,7 @@ app.set('io', io);
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
